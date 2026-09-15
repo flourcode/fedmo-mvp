@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FedMo | Unified GovCon Dashboard</title>
-    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PapaParse for reading the CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <script>
@@ -14,9 +12,7 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        slate: { 850: '#151e2e' }
-                    }
+                    colors: { slate: { 850: '#151e2e', 900: '#0f172a' } }
                 }
             }
         }
@@ -25,53 +21,56 @@
 <body class="bg-slate-900 text-slate-300 font-sans min-h-screen">
 
     <!-- Navigation Bar -->
-    <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center">
+    <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white">FM</div>
-            <h1 class="text-xl font-bold text-white tracking-wide">FedMo <span class="text-slate-500 text-sm font-normal">MVP</span></h1>
+            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/20">FM</div>
+            <h1 class="text-xl font-bold text-white tracking-wide">FedMo <span class="text-blue-400 text-sm font-normal ml-1">Beta</span></h1>
         </div>
         <div class="text-sm">
-            <span id="opp-count" class="bg-blue-900/50 text-blue-400 py-1 px-3 rounded-full font-medium">Loading opportunities...</span>
+            <span id="opp-count" class="bg-slate-900 border border-slate-700 text-slate-300 py-1.5 px-4 rounded-full font-medium">Loading data...</span>
         </div>
     </nav>
 
     <!-- Main Workspace -->
-    <main class="p-6 max-w-7xl mx-auto flex flex-col md:flex-row gap-6">
+    <main class="p-6 max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
         
         <!-- Sidebar Controls -->
-        <aside class="w-full md:w-1/3 lg:w-1/4 space-y-6">
-            <div class="bg-slate-800 p-5 rounded-lg border border-slate-700">
-                <h2 class="text-white font-semibold mb-4">Discovery Filters</h2>
+        <aside class="w-full lg:w-1/4 space-y-6">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 sticky top-24">
+                <h2 class="text-white font-semibold mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Smart Filters
+                </h2>
                 
-                <!-- Search Box -->
                 <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Search Keywords</label>
-                    <input type="text" id="search-box" placeholder="e.g., Custodial, Airboat..." 
-                           class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Keyword Search</label>
+                    <input type="text" id="search-box" placeholder="e.g., Cloud, Janitorial..." 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                 </div>
 
-                <!-- Set Aside Filter -->
-                <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Set-Aside Type</label>
-                    <select id="set-aside-filter" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                        <option value="">All Set-Asides</option>
-                        <!-- Options populated via JS -->
+                <div class="mb-5">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Set-Aside Category</label>
+                    <select id="set-aside-filter" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition appearance-none">
+                        <option value="">All Opportunities</option>
                     </select>
                 </div>
                 
-                <button id="clear-filters" class="w-full bg-slate-700 hover:bg-slate-600 text-white text-sm py-2 rounded transition">
+                <button id="clear-filters" class="w-full bg-slate-700/50 hover:bg-slate-700 text-white text-sm py-2 rounded-lg transition border border-slate-600">
                     Clear Filters
                 </button>
             </div>
         </aside>
 
         <!-- Opportunity Feed (Pipeline) -->
-        <section class="w-full md:w-2/3 lg:w-3/4">
-            <div id="loading-state" class="text-center py-12">
-                <p class="text-slate-500">Parsing SAM.gov dataset...</p>
+        <section class="w-full lg:w-3/4">
+            <div id="loading-state" class="text-center py-20">
+                <div class="animate-pulse flex flex-col items-center">
+                    <div class="h-8 w-8 bg-blue-600 rounded-full mb-4"></div>
+                    <p class="text-slate-400">Parsing SAM.gov Dataset...</p>
+                </div>
             </div>
             
-            <div id="opportunity-feed" class="space-y-4 hidden">
+            <div id="opportunity-feed" class="space-y-6 hidden">
                 <!-- Cards injected here via JavaScript -->
             </div>
         </section>
@@ -79,6 +78,30 @@
 
     <script>
         let allOpportunities = [];
+
+        // Helper: Strip HTML and clean text
+        function cleanHTML(html) {
+            if (!html) return "No description provided.";
+            let text = html.replace(/<[^>]*>?/gm, ' '); // Remove HTML tags
+            text = text.replace(/&nbsp;/g, ' '); // Remove common entities
+            return text.replace(/\s+/g, ' ').trim(); // Remove extra spaces
+        }
+
+        // Helper: Generate a "TL;DR" summary (first 2-3 sentences)
+        function generateSummary(text) {
+            if (!text || text === "No description provided.") return text;
+            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            return sentences.slice(0, 2).join(' ').trim();
+        }
+
+        // Helper: Calculate days remaining
+        function getDaysRemaining(dateString) {
+            if (!dateString) return null;
+            const dueDate = new Date(dateString);
+            const today = new Date();
+            const diffTime = dueDate - today;
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
 
         // 1. Fetch and Parse the CSV File
         Papa.parse("active_solicitations_next_30_days.csv", {
@@ -92,68 +115,130 @@
                 
                 populateFilters(allOpportunities);
                 renderFeed(allOpportunities);
-            },
-            error: function(err) {
-                document.getElementById('loading-state').innerHTML = `<p class="text-red-400">Error loading CSV. Make sure the file is named correctly and hosted in the same directory.</p>`;
             }
         });
 
-        // 2. Render the Opportunity Cards
+        // 2. Render the Rich Opportunity Cards
         function renderFeed(data) {
             const feed = document.getElementById('opportunity-feed');
             feed.innerHTML = '';
             
-            document.getElementById('opp-count').innerText = `${data.length} Active Bids`;
+            document.getElementById('opp-count').innerText = `${data.length} Opportunities`;
 
             if (data.length === 0) {
-                feed.innerHTML = `<div class="bg-slate-800 p-8 rounded-lg border border-slate-700 text-center"><p class="text-slate-400">No opportunities match your filters.</p></div>`;
+                feed.innerHTML = `<div class="bg-slate-800 p-8 rounded-xl border border-slate-700 text-center"><p class="text-slate-400">No opportunities match your filters.</p></div>`;
                 return;
             }
 
-            // Only render top 50 to keep the browser fast
+            // Render top 50 to keep the DOM snappy
             const displayData = data.slice(0, 50);
 
             displayData.forEach(opp => {
-                // Formatting dates and handling empty data safely
-                const dueDate = opp['Current Response Date'] ? opp['Current Response Date'].split(' ')[0] : 'TBD';
-                const setAside = opp['Current Set Aside'] || 'Unrestricted';
-                const naics = opp['NAICS'] || 'N/A';
+                const noticeId = opp['Notice ID'] || 'N/A';
+                const agency = opp['Contracting Office'] || 'Federal Agency';
+                const title = opp['Opportunity Title'] || 'Untitled Solicitation';
+                const oppType = opp['Contract Opportunity Type'] || 'Solicitation';
+                const setAside = opp['Current Set Aside'] || 'Unrestricted (No Set-Aside)';
+                const naics = opp['NAICS'] || 'Not Specified';
+                const pocName = opp['POC Name'] || 'Contracting Officer';
+                const pocEmail = opp['POC Email'] || '';
+                
+                // Process Dates
+                const rawDate = opp['Current Response Date'];
+                const dueDateStr = rawDate ? new Date(rawDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD';
+                const daysRemaining = getDaysRemaining(rawDate);
+                const publishedDate = opp['Last Published Date'] ? new Date(opp['Last Published Date']).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Unknown';
+
+                // Date styling logic
+                let daysMarkup = `<div class="text-xs text-slate-500 mt-1">Deadline TBD</div>`;
+                if (daysRemaining !== null) {
+                    if (daysRemaining < 0) daysMarkup = `<div class="text-xs text-slate-500 mt-1">Closed</div>`;
+                    else if (daysRemaining <= 7) daysMarkup = `<div class="text-xs font-bold text-red-400 mt-1">⚠️ ${daysRemaining} Days Left</div>`;
+                    else if (daysRemaining <= 14) daysMarkup = `<div class="text-xs font-bold text-amber-400 mt-1">${daysRemaining} Days Left</div>`;
+                    else daysMarkup = `<div class="text-xs text-green-400 mt-1">${daysRemaining} Days Left</div>`;
+                }
+
+                // Process Text for AI Briefing
+                const cleanText = cleanHTML(opp['Description']);
+                const summary = generateSummary(cleanText);
                 
                 const card = document.createElement('div');
-                card.className = "bg-slate-800 p-5 rounded-lg border border-slate-700 hover:border-slate-500 transition group relative";
+                card.className = "bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm";
                 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <span class="text-xs font-bold text-blue-400 tracking-wider uppercase mb-1 block">${opp['Contracting Office'] || 'Federal Agency'}</span>
-                            <h3 class="text-lg font-bold text-white leading-tight pr-4">${opp['Opportunity Title']}</h3>
+                    <!-- Header -->
+                    <div class="flex justify-between items-start mb-4 gap-4">
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-blue-400 tracking-wider uppercase mb-1 block">${agency} • ${oppType}</span>
+                            <h2 class="text-xl font-bold text-white leading-tight">${title}</h2>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <span class="bg-slate-900 px-2 py-1 rounded text-xs border border-slate-700 text-slate-300">ID: ${noticeId}</span>
+                                <span class="bg-slate-900 px-2 py-1 rounded text-xs border border-slate-700 text-slate-300">${setAside}</span>
+                                <span class="bg-slate-900 px-2 py-1 rounded text-xs border border-slate-700 text-slate-300">NAICS: ${naics}</span>
+                            </div>
                         </div>
-                        <div class="text-right whitespace-nowrap">
-                            <div class="text-xs text-slate-400 mb-1">Due Date</div>
-                            <div class="font-bold text-red-400">${dueDate}</div>
-                        </div>
-                    </div>
-                    
-                    <p class="text-sm text-slate-400 mt-3 mb-4 line-clamp-2">${opp['Description'] || 'No description provided.'}</p>
-                    
-                    <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-700">
-                        <span class="bg-slate-900 px-2 py-1 rounded text-xs text-slate-300 border border-slate-700"><b>Notice ID:</b> ${opp['Notice ID']}</span>
-                        <span class="bg-slate-900 px-2 py-1 rounded text-xs text-slate-300 border border-slate-700"><b>Set Aside:</b> ${setAside}</span>
-                        <span class="bg-slate-900 px-2 py-1 rounded text-xs text-slate-300 border border-slate-700"><b>NAICS:</b> ${naics}</span>
+                        <button class="shrink-0 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition hidden sm:block">
+                            + Add to Pipeline
+                        </button>
                     </div>
 
-                    <div class="mt-4 flex gap-3">
-                        <a href="https://sam.gov/opp/${opp['Notice ID']}/view" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded transition">
-                            View on SAM.gov
-                        </a>
-                        ${opp['POC Email'] ? `<a href="mailto:${opp['POC Email']}?subject=Inquiry regarding ${opp['Notice ID']}" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded transition">Email POC</a>` : ''}
+                    <hr class="border-slate-700 my-5">
+
+                    <!-- Content Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- Main Content (AI Summary & Contacts) -->
+                        <div class="col-span-1 md:col-span-2 space-y-5">
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                    ✨ Auto-Briefing
+                                </h3>
+                                <div class="bg-slate-900/50 p-4 rounded-lg border border-blue-900/30 text-sm text-slate-300 leading-relaxed">
+                                    <p>${summary}</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Primary Contact</h3>
+                                <div class="flex gap-3">
+                                    ${pocEmail ? `
+                                        <a href="mailto:${pocEmail}?subject=Inquiry: ${noticeId} - ${title}" 
+                                           class="inline-flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-white text-sm py-2 px-4 rounded-lg transition border border-slate-600">
+                                            Email ${pocName}
+                                        </a>
+                                    ` : `<span class="text-sm text-slate-500 italic">No email provided</span>`}
+                                    
+                                    <a href="https://sam.gov/opp/${noticeId}/view" target="_blank" 
+                                       class="inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-blue-400 text-sm py-2 px-4 rounded-lg transition border border-slate-700">
+                                        View on SAM.gov ↗
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Timeline -->
+                        <div class="col-span-1 border-t md:border-t-0 md:border-l border-slate-700 pt-5 md:pt-0 md:pl-6">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Timeline</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="text-slate-500 text-xs mb-1">Published Date</div>
+                                    <div class="text-sm text-white">${publishedDate}</div>
+                                </div>
+                                <div>
+                                    <div class="text-slate-500 text-xs mb-1">Proposal Deadline</div>
+                                    <div class="text-lg font-bold text-white">${dueDateStr}</div>
+                                    ${daysMarkup}
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 `;
                 feed.appendChild(card);
             });
         }
 
-        // 3. Extract unique filters from the data
+        // 3. Extract unique filters
         function populateFilters(data) {
             const setAsides = new Set();
             data.forEach(opp => {
@@ -169,16 +254,20 @@
             });
         }
 
-        // 4. Handle Search and Filtering Logic
+        // 4. Filtering Logic
         function applyFilters() {
             const searchTerm = document.getElementById('search-box').value.toLowerCase();
             const selectedSetAside = document.getElementById('set-aside-filter').value;
 
             const filteredData = allOpportunities.filter(opp => {
+                const titleStr = opp['Opportunity Title'] || "";
+                const descStr = opp['Description'] || "";
+                const naicsStr = opp['NAICS'] || "";
+                
                 const matchesSearch = 
-                    (opp['Opportunity Title'] && opp['Opportunity Title'].toLowerCase().includes(searchTerm)) ||
-                    (opp['Description'] && opp['Description'].toLowerCase().includes(searchTerm)) ||
-                    (opp['NAICS'] && opp['NAICS'].toLowerCase().includes(searchTerm));
+                    titleStr.toLowerCase().includes(searchTerm) ||
+                    descStr.toLowerCase().includes(searchTerm) ||
+                    naicsStr.toLowerCase().includes(searchTerm);
                 
                 const matchesSetAside = selectedSetAside === "" || opp['Current Set Aside'] === selectedSetAside;
 
@@ -188,7 +277,6 @@
             renderFeed(filteredData);
         }
 
-        // Event Listeners
         document.getElementById('search-box').addEventListener('input', applyFilters);
         document.getElementById('set-aside-filter').addEventListener('change', applyFilters);
         
